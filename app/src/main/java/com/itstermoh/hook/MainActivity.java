@@ -27,12 +27,11 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         
-        blaster = new Blaster(getApplicationContext(), usbHandler);
-        blaster.initializeCommunication();
-        
         test = findViewById(R.id.test);
         bulk = findViewById(R.id.bulk);
         
+        blaster = new Blaster(getApplicationContext(), usbHandler);
+        blaster.initializeCommunication();
         
         test.setOnClickListener(new OnClickListener() {
             @Override
@@ -45,7 +44,7 @@ public class MainActivity extends Activity {
                 arrayList.add(((byte) -4));
                 
                 blaster.test(arrayList);
-                //blaster.sendData(new byte[]{});
+                
                 if (blaster.sent > 0) {
                     Toast.makeText(getApplicationContext(), "IR mandato | Size="+blaster.sent, Toast.LENGTH_SHORT).show();
                     blaster.sent = 0;
@@ -72,7 +71,7 @@ public class MainActivity extends Activity {
         }
     }
     
-    public void bulk(String txt) {
+    public void setText(String txt) {
         bulk.setText(txt);
     }
 }

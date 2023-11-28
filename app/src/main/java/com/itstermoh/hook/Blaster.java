@@ -34,7 +34,7 @@ public class Blaster {
     private boolean permissionGranted;
     public byte[] bit;
     public int sent;
-
+    public String device;
     private Handler messageHandler;
 
     public Blaster(Context context, Handler handler) {
@@ -82,23 +82,24 @@ public class Blaster {
                         
                         usbConnection.controlTransfer(0x40, 53, 0, 0, new byte[]{}, 0, 100);
                         
-                        sendMessageToHandler("USB connection opened successfully");
+                        sendMessageToHandler("Connessione USB Stabilita.");
                         setBuff(new byte[16384]);
+                        this.device = null;
                         return;
                     } else {
-                        sendMessageToHandler("Failed to claim USB interface");
+                        sendMessageToHandler("Impossibile reclamare l'interfaccia.");
                     }
                 } else {
-                    sendMessageToHandler("Failed to open USB connection");
+                    sendMessageToHandler("Impossibile aprire la connessione.");
                 }
             } else {
 
-                sendMessageToHandler("No USB interface found");
+                sendMessageToHandler("Nessuna interfaccia trovata.");
             }
         } else {
-            sendMessageToHandler("USB device is null");
+            sendMessageToHandler("Dispositivo USB nullo.");
         }
-        sendMessageToHandler("Failed to open USB connection");
+        sendMessageToHandler("Impossibile aprire la connessione.");
     }
     
     private void initStringControlTransfer(final UsbDeviceConnection deviceConnection,
@@ -157,12 +158,45 @@ public class Blaster {
         sent = transfered;
     }
     
-    public void startReadingData() {
+    public void IdentifyDevice() {
+      int intt = 252;
+      UsbDeviceConnection connection = usbConnection;
+      UsbEndpoint endpoint = outEndpoint;
+      byte[] buffer = getBuff();
+      int length = getBuff().length;
+      int transfered = connection.bulkTransfer(endpoint, buffer, length, 100);
+      
+      if (transfered > 0) {
+        buffer = new byte[transfered];
+        byte[] buffer1 = getBuff();
+        byte bite = 0;
+        System.arraycopy(buffer1, 0, buffer, 0, transfered);
+        length = 0;
         
+        while (length < transfered) {
+          byte anotherbyte = buffer[length];
+          ++length;
+        }
+        
+        length = 6;
+        if (transfered == 6 && (buffer[0] & 255) == intt && (buffer[1] & 255) == intt && (buffer[2] & 255) == intt && (buffer[3] & 255) == intt) {
+          if ((buffer[4] & 255) == 2 && (buffer[5] & 255) == 170) {
+            setDeviceIdentify("d226");
+          }
+        }
+      }
+    }
+    
+    public void setDeviceIdentify(String device) {
+      this.device = device;
+    }
+    
+    public void startReadingData() {
+        // TODO: code this
     }
 
     public void closeCommunication() {
-        
+        // TODO: code this        
     }
 
     private final BroadcastReceiver usbPermissionReceiver = new BroadcastReceiver() {
